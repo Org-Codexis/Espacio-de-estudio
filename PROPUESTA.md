@@ -1,6 +1,6 @@
 # Espacio-de-estudio
-**Equipo:** [Anny Lorena Torres Guerrero, David Fernando Quiñones Carmona] 
-**Idea:** [reservar espacios de estudio de manera organizada] 
+**Equipo:** [Anny Lorena Torres Guerrero, David Fernando Quiñones Carmona, Daney Gissela Estacio Garcia] 
+**Idea:** [reservar espacios de estudio de manera organizada, con el fin de saber la disponibilidad de los espacios y separar con tiempo un espacio] 
 **Usuario objetivo:** [Estudiantes universitarios que necesiten espacios para estudiar] 
 **Problema que resuelve:** [La perdida de tiempo en busqueda de un espacio para estudiar] 
 **Páginas principales que imaginamos:** 
@@ -11,4 +11,5 @@
 **Tecnologías propuestas:** 
 - Frontend: HTML5, CSS, Bootstrap
 -  Backend: [Node.js / Python]
--  Base de datos: [MySQL] 
+-  Base de datos: [MySQL]
+
