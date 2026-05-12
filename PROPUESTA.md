@@ -1,5 +1,5 @@
 # Espacio-de-estudio
-**Equipo:** [Anny Lorena Torres Guerrero] 
+**Equipo:** [Anny Lorena Torres Guerrero, David Fernando Quiñones Carmona] 
 **Idea:** [reservar espacios de estudio de manera organizada] 
 **Usuario objetivo:** [Estudiantes universitarios que necesiten espacios para estudiar] 
 **Problema que resuelve:** [La perdida de tiempo en busqueda de un espacio para estudiar] 
