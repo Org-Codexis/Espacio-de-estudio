@@ -12,7 +12,7 @@ Se decidió mantener una primera versión sencilla, funcional y fácil de utiliz
 
 ### Requerimientos acordados 
 REQ-01: El sistema debe permitir a los estudiantes consultar la disponibilidad de salas en tiempo real.
-REQ-02: El sistema debe permitir realizar reservas de salas de estudio.
+REQ-02: El sistema debe permitir realizar reservas de salas de estudio (Evitar que una sola persona reserve una sala enorme para 8 personas).
 REQ-03: El sistema debe permitir la cancelación fácil de reservas por parte del estudiante.
 REQ-04: El sistema debe manejar un tiempo límite de cancelación sin penalización antes del inicio de la reserva.
 REQ-05: El sistema debe aplicar restricciones o penalizaciones a estudiantes que cancelen repetidamente tarde o no asistan a sus reservas.
