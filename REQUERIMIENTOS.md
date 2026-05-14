@@ -20,10 +20,11 @@ REQ-06: El sistema debe enviar notificaciones o recordatorios de reservas a los 
 REQ-07: El sistema debe contar con roles diferenciados para estudiantes y administradores.
 REQ-08: El administrador debe poder visualizar las reservas del día organizadas por horario y sala.
 REQ-09: El administrador debe poder registrar manualmente el estado de una reserva:
-Asistió
-No asistió
-Cancelada
-Incidente reportado
+-Asistió
+-No asistió
+-Cancelada
+-Incidente reportado
+
 REQ-10: El sistema debe permitir al administrador registrar observaciones o incidentes relacionados con las salas o reservas.
 REQ-11: El sistema debe permitir consultar el historial de reservas realizadas por cada estudiante.
 REQ-12: El sistema debe incluir filtros de búsqueda para facilitar la consulta de salas y horarios.
