@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+  COMPLETED
+  NO_SHOW
+}
+
+enum ReportType {
+  INCIDENT
+  OBSERVATION
+}
+
+model Role {
+  id Int @id @default(autoincrement())
+
+  name String @unique
+
+  users User[]
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  fullName String
+
+  email String @unique
+
+  password String
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  roleId Int
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  reservations Reservation[]
+
+  reports Report[]
+
+  @@index([email])
+}
+
+model Space {
+  id Int @id @default(autoincrement())
+
+  name String
+
+  capacity Int
+
+  location String
+
+  isAvailable Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  reservations Reservation[]
+
+  reports Report[]
+}
+
+model Reservation {
+  id Int @id @default(autoincrement())
+
+  userId Int
+
+  spaceId Int
+
+  reservationDate DateTime
+
+  startTime String
+  
+  endTime String
+
+  status ReservationStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Restrict)
+
+  @@index([reservationDate])
+}
+
+model Report {
+  id Int @id @default(autoincrement())
+
+  description String
+
+  type ReportType
+
+  createdAt DateTime @default(now())
+
+  userId Int
+
+  spaceId Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Restrict)
+}
