@@ -90,7 +90,7 @@ export class ReservationsService {
 
                 endTime: dto.endTime,
 
-                status: 'PENDING',
+                status: ReservationStatus.PENDING,
 
             },
 
@@ -108,6 +108,9 @@ export class ReservationsService {
         const reservation =
             await this.prisma.reservation.findUnique({
                 where: { id },
+                include: {
+                    user: true,
+                }
             })
 
         if (!reservation) {
@@ -127,6 +130,35 @@ export class ReservationsService {
                 'La reserva ya fue cancelada',
             )
 
+        }
+
+        // fecha actual
+        const now = new  Date ()
+
+        // fecha de inicio de reserva
+        const reservationStart =
+            new Date(reservation.startTime)
+
+        //diferencia en minutos
+        const diffMinutes =
+            (reservationStart.getTime() - now.getTime())
+            /1000 /60
+
+        // si faltan menos de 60 min
+        if (diffMinutes < 60) {
+        
+            await this.prisma.user.update({
+
+                where: {
+                    id: reservation.userId,
+                },
+
+                data: {
+                    lateCancellations: {
+                        increment: 1,
+                    },
+                },
+            })
         }
 
         return this.prisma.reservation.update({
@@ -212,5 +244,18 @@ export class ReservationsService {
         })
 
     }
+
+    async findByUser(userId: number) {
+        return this.prisma.reservation.findMany({
+            where: { userId },
+            include: {
+                space: true,
+                user: true,
+            },
+            orderBy: {
+                reservationDate: 'desc',
+            },
+        })
+    }   
 
 }
