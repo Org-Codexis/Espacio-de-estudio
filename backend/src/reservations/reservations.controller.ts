@@ -27,16 +27,9 @@ export class ReservationsController {
 
     }
 
-    @Get(':id')
-    async findOne(
-
-        @Param('id', ParseIntPipe)
-        id: number,
-
-    ) {
-
-        return this.reservationsService.findOne(id)
-
+    @Get('user/:id')
+    findByUser(@Param('id', ParseIntPipe) id: number) {
+        return this.service.findByUser(id)
     }
 
     @Patch(':id')

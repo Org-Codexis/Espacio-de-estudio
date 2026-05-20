@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { SpacesModule } from './spaces/spaces.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
 
@@ -20,6 +21,7 @@ import { ReservationsModule } from './reservations/reservations.module';
     UsersModule,
     SpacesModule,
     ReservationsModule,
+    ReportsModule,
 
   ],
 
