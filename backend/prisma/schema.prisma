@@ -86,6 +86,8 @@ model Reservation {
   reservationDate DateTime
 
   startTime String
+
+  peopleCount Int @default(1)
   
   endTime String
 

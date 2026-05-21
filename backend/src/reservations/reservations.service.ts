@@ -76,6 +76,34 @@ export class ReservationsService {
 
         }
 
+        const space =
+            await this.prisma.space.findUnique({
+
+                where: {
+                    id: dto.spaceId,
+                },
+
+            })
+
+        if (!space) {
+
+            throw new NotFoundException(
+                `Space ${dto.spaceId} no existe`,
+            )
+
+        }
+
+        if (
+            dto.peopleCount <
+            Math.ceil(space.capacity / 2)
+        ) {
+
+            throw new BadRequestException(
+                'La cantidad de personas es muy baja para esta sala',
+            )
+
+        }
+
         return this.prisma.reservation.create({
 
             data: {
@@ -89,6 +117,8 @@ export class ReservationsService {
                 startTime: dto.startTime,
 
                 endTime: dto.endTime,
+
+                peopleCount: dto.peopleCount,
 
                 status: ReservationStatus.PENDING,
 
@@ -133,7 +163,7 @@ export class ReservationsService {
         }
 
         // fecha actual
-        const now = new  Date ()
+        const now = new Date()
 
         // fecha de inicio de reserva
         const reservationStart =
@@ -142,11 +172,11 @@ export class ReservationsService {
         //diferencia en minutos
         const diffMinutes =
             (reservationStart.getTime() - now.getTime())
-            /1000 /60
+            / 1000 / 60
 
         // si faltan menos de 60 min
         if (diffMinutes < 60) {
-        
+
             await this.prisma.user.update({
 
                 where: {
@@ -256,6 +286,6 @@ export class ReservationsService {
                 reservationDate: 'desc',
             },
         })
-    }   
+    }
 
 }
