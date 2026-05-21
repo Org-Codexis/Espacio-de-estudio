@@ -8,7 +8,6 @@ export class ReservationsController {
 
     constructor(
         private readonly reservationsService: ReservationsService,
-        private readonly service: ReservationsService,
     ) { }
 
     @Post()
@@ -29,7 +28,7 @@ export class ReservationsController {
 
     @Get('user/:id')
     findByUser(@Param('id', ParseIntPipe) id: number) {
-        return this.service.findByUser(id)
+        return this.reservationsService.findByUser(id)
     }
 
     @Patch(':id')
@@ -55,7 +54,7 @@ export class ReservationsController {
     async cancel(
         @Param('id', ParseIntPipe) id: number,
     ) {
-        return this.service.cancel(id)
+        return this.reservationsService.cancel(id)
     }
 
     @Delete(':id')
