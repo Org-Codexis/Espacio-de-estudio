@@ -1,19 +1,68 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "./assets/vite.svg";
-import heroImg from "./assets/hero.png";
-import "./App.css";
+import './App.css'
+
+import { useState } from 'react'
+
+import MainLayout from './layouts/MainLayout'
+
+import SidebarMenu from './components/SidebarMenu'
+
+import UsersPage from './pages/UsersPage'
+import SpacesPage from './pages/SpacesPage'
+import ReservationsPage from './pages/ReservationsPage'
+import ReportsPage from './pages/ReportsPage'
 
 function App() {
-  const [count, setCount] = useState(0);
+
+  
+  const [page, setPage] =
+    useState('users')
+
+  function renderContent() {
+
+    switch (page) {
+
+      case 'users':
+
+        return <UsersPage />
+
+      case 'spaces':
+
+        return <SpacesPage />
+
+      case 'reservations':
+
+        return <ReservationsPage />
+
+      case 'reports':
+
+        return <ReportsPage />
+
+      default:
+
+        return <UsersPage />
+
+    }
+
+  }
+
+  const sidebar = (
+
+    <SidebarMenu
+      current={page}
+      onChange={setPage}
+    />
+
+  )
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-sky-400 drop-shadow-lg">
-        ¡Tailwind funcionando!
-      </h1>
-    </div>
-  );
+
+    <MainLayout
+      sidebar={sidebar}
+      content={renderContent()}
+    />
+
+  )
+
 }
 
-export default App;
+export default App
