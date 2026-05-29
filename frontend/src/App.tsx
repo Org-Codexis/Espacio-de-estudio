@@ -9,54 +9,54 @@ import SidebarMenu from "./components/SidebarMenu";
 import DashboardPage from "./pages/DashboardPage";
 import UsersPage from "./pages/UsersPage";
 import SpacesPage from "./pages/SpacesPage"; 
-import ReportsPage from "./pages/ReportsPage";
-
-// Páginas de Reservas Independientes
-import ReservationsPage from "./pages/ReservationsPage";       
+import ReportsPage from "./pages/AdminReportsPage"; // Resuelve la importación correcta de administración
 import AdminReservationsPage from "./pages/AdminReservationsPage"; 
+
+// Páginas del Estudiante
+import ProfilePage from "./pages/ProfilePage"; 
+import ReservationsPage from "./pages/ReservationsPage"; 
+import StudentReportsPage from "./pages/StudentReportsPage"; 
+import UserHistoryPage from "./pages/UserHistoryPage";
 
 function App() {
   const [user, setUser] = useState<any>(null);
   const [page, setPage] = useState("dashboard");
-  const [loadingSession, setLoadingSession] = useState(true); // 👈 Controla el estado crítico de lectura inicial
-  
-  // Manejo de navegación unificado compatible con botones Atrás/Adelante del navegador
+  const [loadingSession, setLoadingSession] = useState(true); 
   const [view, setView] = useState<"welcome" | "login" | "register">("welcome");
 
-  // Función para cambiar de vista empujando el estado en el historial de navegación
   const navigateTo = (newView: "welcome" | "login" | "register") => {
     setView(newView);
     window.history.pushState({ view: newView }, "");
   };
 
   useEffect(() => {
-    // Escuchar cuando el usuario presiona las flechas de Atrás/Adelante del navegador
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.view) {
         setView(event.state.view);
       } else {
-        setView("welcome"); // Estado inicial por defecto
+        setView("welcome"); 
       }
     };
 
     window.addEventListener("popstate", handlePopState);
-    
-    // Inicializar el estado en el historial al cargar la aplicación por primera vez
     window.history.replaceState({ view: "welcome" }, "");
 
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      setPage(parsedUser.roleId === 1 ? "reservations" : "dashboard");
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        setPage(parsedUser.roleId === 1 ? "reservations" : "dashboard");
+      } catch (e) {
+        console.error("Error al parsear el usuario del almacenamiento local", e);
+      }
     }
 
-    setLoadingSession(false); // 👈 Finaliza la carga una vez evaluado el localStorage
+    setLoadingSession(false); 
 
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  // Espera a que termine de leer el localStorage para evitar renderizar componentes sin datos de usuario
   if (loadingSession) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
@@ -68,7 +68,6 @@ function App() {
     );
   }
 
-  // FLUJO DE ACCESO PREVIO A ESTAR LOGUEADO
   if (!user) {
     switch (view) {
       case "welcome":
@@ -105,12 +104,17 @@ function App() {
     }
   }
 
-  // PANEL INTERNO DEL SISTEMA (USUARIOS LOGUEADOS)
   const renderContent = () => {
     if (user.roleId === 1) {
       switch (page) {
         case "reservations": 
           return <ReservationsPage />; 
+        case "history":
+          return <UserHistoryPage />;
+        case "penalties": 
+          return <StudentReportsPage />;
+        case "profile":
+          return <ProfilePage user={user} />; 
         default: 
           return <ReservationsPage />;
       }
@@ -120,7 +124,7 @@ function App() {
         case "users": return <UsersPage />;
         case "spaces": return <SpacesPage />; 
         case "reservations": return <AdminReservationsPage />; 
-        case "reports": return <ReportsPage />;
+        case "reports": return <ReportsPage />; 
         default: return <DashboardPage />;
       }
     }
