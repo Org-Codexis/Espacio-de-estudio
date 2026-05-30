@@ -24,18 +24,36 @@ model User {
   reports           Report[]
   reservations      Reservation[]
   role              Role          @relation(fields: [roleId], references: [id])
+  ratings           Rating[]
 
   @@index([email])
 }
 
 model Space {
-  id           Int           @id @default(autoincrement())
-  name         String
-  capacity     Int
-  location     String
-  isAvailable  Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  reports      Report[]
+  id Int @id @default(autoincrement())
+
+  name String
+
+  description String?
+
+  imageUrl String?
+
+  capacity Int
+
+  location String
+
+  openingHour String?
+
+  closingHour String?
+
+  services String?
+
+  isAvailable Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  reports Report[]
+
   reservations Reservation[]
 }
 
@@ -64,6 +82,18 @@ model Report {
   spaceId     Int
   space       Space      @relation(fields: [spaceId], references: [id])
   user        User       @relation(fields: [userId], references: [id])
+}
+
+model Rating {
+  id Int @id @default(autoincrement())
+
+  score Int
+
+  comment String?
+
+  userId Int
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 enum ReservationStatus {
