@@ -3,26 +3,18 @@ import axios from "axios";
 
 export default function ReservationsPage() {
   const [spaces, setSpaces] = useState<any[]>([]);
-  const [myReservations, setMyReservations] = useState<
-    any[]
-  >([]);
-  const [allReservations, setAllReservations] = useState<
-    any[]
-  >([]);
+  const [myReservations, setMyReservations] = useState<any[]>([]);
+  const [allReservations, setAllReservations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Campos que el estudiante diligencia (Eliminamos peopleCount de los estados)
-  const [selectedSpaceId, setSelectedSpaceId] =
-    useState("");
-  const [reservationDate, setReservationDate] =
-    useState("");
+  // Campos que el estudiante diligencia
+  const [selectedSpaceId, setSelectedSpaceId] = useState("");
+  const [reservationDate, setReservationDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
   const userString = localStorage.getItem("user");
-  const currentUser = userString
-    ? JSON.parse(userString)
-    : null;
+  const currentUser = userString ? JSON.parse(userString) : null;
   const currentUserId = currentUser?.id || null;
 
   const fetchData = async () => {
@@ -38,13 +30,23 @@ export default function ReservationsPage() {
       );
       setAllReservations(resReservations.data);
 
-      const now = new Date();
-      // Filtro para mostrar solo reservas futuras en esta página
-      const filtered = resReservations.data.filter(
-        (r: any) =>
-          r.userId === currentUserId &&
-          new Date(r.reservationDate) >= now,
-      );
+      // CORRECCIÓN DE FECHAS: Obtenemos el día de hoy en formato local limpio YYYY-MM-DD
+      const hoy = new Date();
+      const hoyFormateado = hoy.toISOString().split("T")[0];
+
+      // Filtro corregido: Muestra si pertenece al usuario Y es de hoy en adelante
+      const filtered = resReservations.data.filter((r: any) => {
+        if (r.userId !== currentUserId) return false;
+        
+        // Extraemos solo la porción YYYY-MM-DD de la reserva
+        const fechaReservaFormateada = r.reservationDate
+          ? r.reservationDate.split("T")[0]
+          : "";
+          
+        // Permitimos que se renderice si la fecha es igual a hoy o posterior
+        return fechaReservaFormateada >= hoyFormateado;
+      });
+      
       setMyReservations(filtered);
     } catch (error) {
       console.error(error);
@@ -110,20 +112,18 @@ export default function ReservationsPage() {
       return;
     }
 
-    // 1. FORMATEAR FECHA A ISO: Pasamos "2026-06-04" a un objeto Date real para que @IsDateString() no falle
+    // Convertimos a objeto Date para que pase las validaciones institucionales del backend
     const formattedDate = new Date(reservationDate);
 
-    // 2. FORMATEAR HORAS: Aseguramos formato 24h por si el navegador devuelve "p. m. / a. m."
+    // Formateador de tiempo a 24 horas
     const formatTimeTo24h = (timeStr: string) => {
       if (!timeStr) return "";
-      // Si ya viene en formato 24h limpio (ej. "14:30"), lo dejamos igual
       if (
         !timeStr.includes("m.") &&
         !timeStr.includes("M.")
       )
         return timeStr;
 
-      // Si viene con "a. m." o "p. m.", lo convertimos
       const isPm = timeStr.toLowerCase().includes("p");
       let [hoursStr, minutesStr] = timeStr
         .replace(/[a-zA-Z\.\s]/g, "")
@@ -140,13 +140,12 @@ export default function ReservationsPage() {
     const cleanStartTime = formatTimeTo24h(startTime);
     const cleanEndTime = formatTimeTo24h(endTime);
 
-    // Construimos el payload con los datos exactamente como los pide el DTO
     const payload = {
       userId: currentUserId,
       spaceId: Number(selectedSpaceId),
-      reservationDate: formattedDate, // Enviamos el objeto/ISO String
-      startTime: cleanStartTime, // "08:40"
-      endTime: cleanEndTime, // "22:40"
+      reservationDate: formattedDate,
+      startTime: cleanStartTime,
+      endTime: cleanEndTime,
       peopleCount: Number(currentSpace.capacity),
     };
 
@@ -165,7 +164,6 @@ export default function ReservationsPage() {
 
       fetchData();
     } catch (error: any) {
-      // Si vuelve a fallar, el backend nos dirá exactamente qué propiedad falló (ej: validation errors)
       const errorMsg = error.response?.data?.message;
       if (Array.isArray(errorMsg)) {
         alert(
@@ -193,7 +191,7 @@ export default function ReservationsPage() {
         Historial de Reservas
       </h1>
 
-      {/* FORMULARIO MEJORADO CON REJILLA AJUSTADA A 4 COLUMNAS */}
+      {/* FORMULARIO */}
       <div className="bg-white p-6 rounded-xl shadow border border-slate-200 mb-8">
         <form
           onSubmit={handleCreateReservation}
@@ -282,7 +280,7 @@ export default function ReservationsPage() {
         </form>
       </div>
 
-      {/* TABLA DE HISTORIAL EXCLUSIVO */}
+      {/* TABLA DE HISTORIAL */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
