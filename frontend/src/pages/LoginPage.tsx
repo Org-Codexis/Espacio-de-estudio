@@ -1,5 +1,15 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, type FormEvent } from "react";
+import { http } from "../api/http";
+
+type LoginResponse = {
+  access_token: string;
+  user: {
+    id: number;
+    email: string;
+    fullName: string;
+    roleId: number;
+  };
+};
 
 interface LoginPageProps {
   onLogin: (user: any) => void;
@@ -12,64 +22,105 @@ export default function LoginPage({
 }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
+
     try {
-      // Obtiene la lista de usuarios del backend
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/users`,
+      const data = await http<LoginResponse>(
+        "/auth/login",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        },
       );
 
-      // Busca el usuario por su email
-      const user = data.find((u: any) => u.email === email);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          access_token: data.access_token,
+          user: data.user,
+        }),
+      );
 
-      // Compara las credenciales en texto plano tal como están en tu BD
-      if (user && user.password === password) {
-        onLogin(user);
-      } else {
-        alert("Credenciales incorrectas");
-      }
-    } catch (err) {
-      alert("Error de conexión al servidor");
+      onLogin(data);
+    } catch (err: any) {
+      console.error(err);
+
+      setError(
+        "Credenciales incorrectas o error en el servidor",
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen w-screen items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow w-80">
-        <h2 className="text-xl font-bold mb-4 text-center">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans">
+      <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm">
+        <h1 className="text-2xl font-bold text-slate-800 mb-6 text-center">
           Iniciar Sesión
-        </h2>
+        </h1>
+
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700 text-center">
+            {error}
+          </div>
+        )}
+
         <form
-          onSubmit={handleLogin}
-          className="flex flex-col gap-3"
+          onSubmit={handleSubmit}
+          className="space-y-4"
+          noValidate
         >
-          <input
-            type="email"
-            placeholder="Email"
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <button className="w-full bg-blue-600 text-white p-2 rounded font-bold hover:bg-blue-700 mt-2">
-            Entrar
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Correo Institucional
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@udenar.edu.co"
+              className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-blue-600 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Ingresando..." : "Entrar"}
           </button>
         </form>
 
-        <button
-          onClick={onSwitchToRegister}
-          className="mt-4 text-blue-500 underline text-sm block text-center w-full"
-        >
-          ¿No tienes cuenta? Regístrate
-        </button>
+        <div className="mt-4 text-center">
+          <button
+            onClick={onSwitchToRegister}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            ¿No tienes cuenta? Regístrate
+          </button>
+        </div>
       </div>
     </div>
   );

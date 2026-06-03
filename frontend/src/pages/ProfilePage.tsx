@@ -80,14 +80,6 @@ export default function ProfilePage({ user }: ProfilePageProps) {
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">ID de Registro</span>
             <span className="text-sm font-mono text-gray-600 col-span-2">{user.id}</span>
           </div>
-
-          {/* Campo: Cancelaciones Tardías */}
-          <div className="py-4 grid grid-cols-3 gap-4 items-center">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Cancelaciones Tardías</span>
-            <span className="text-sm font-medium text-gray-900 col-span-2">
-              {user.lateCancellations ?? 0} {user.lateCancellations === 1 ? "veces" : "veces"}
-            </span>
-          </div>
         </div>
       </div>
       

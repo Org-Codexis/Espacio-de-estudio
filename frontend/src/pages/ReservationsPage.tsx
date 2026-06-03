@@ -3,18 +3,26 @@ import axios from "axios";
 
 export default function ReservationsPage() {
   const [spaces, setSpaces] = useState<any[]>([]);
-  const [myReservations, setMyReservations] = useState<any[]>([]);
-  const [allReservations, setAllReservations] = useState<any[]>([]);
+  const [myReservations, setMyReservations] = useState<
+    any[]
+  >([]);
+  const [allReservations, setAllReservations] = useState<
+    any[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   // Campos que el estudiante diligencia
-  const [selectedSpaceId, setSelectedSpaceId] = useState("");
-  const [reservationDate, setReservationDate] = useState("");
+  const [selectedSpaceId, setSelectedSpaceId] =
+    useState("");
+  const [reservationDate, setReservationDate] =
+    useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
   const userString = localStorage.getItem("user");
-  const currentUser = userString ? JSON.parse(userString) : null;
+  const currentUser = userString
+    ? JSON.parse(userString)
+    : null;
   const currentUserId = currentUser?.id || null;
 
   const fetchData = async () => {
@@ -30,23 +38,32 @@ export default function ReservationsPage() {
       );
       setAllReservations(resReservations.data);
 
-      // CORRECCIÓN DE FECHAS: Obtenemos el día de hoy en formato local limpio YYYY-MM-DD
-      const hoy = new Date();
-      const hoyFormateado = hoy.toISOString().split("T")[0];
-
       // Filtro corregido: Muestra si pertenece al usuario Y es de hoy en adelante
-      const filtered = resReservations.data.filter((r: any) => {
-        if (r.userId !== currentUserId) return false;
-        
-        // Extraemos solo la porción YYYY-MM-DD de la reserva
-        const fechaReservaFormateada = r.reservationDate
-          ? r.reservationDate.split("T")[0]
-          : "";
-          
-        // Permitimos que se renderice si la fecha es igual a hoy o posterior
-        return fechaReservaFormateada >= hoyFormateado;
-      });
-      
+      const isReservationFinished = (reservation: any) => {
+        if (
+          !reservation.reservationDate ||
+          !reservation.endTime
+        )
+          return false;
+
+        const fecha =
+          reservation.reservationDate.split("T")[0];
+        const fechaFin = new Date(
+          `${fecha}T${reservation.endTime}:00`,
+        );
+        const ahora = new Date();
+
+        return ahora > fechaFin;
+      };
+
+      const filtered = resReservations.data.filter(
+        (r: any) => {
+          if (r.userId !== currentUserId) return false;
+
+          return !isReservationFinished(r);
+        },
+      );
+
       setMyReservations(filtered);
     } catch (error) {
       console.error(error);

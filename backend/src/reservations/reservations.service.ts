@@ -49,6 +49,12 @@ export class ReservationsService {
       },
     });
 
+    if (existingReservation) {
+      throw new BadRequestException(
+        'El espacio ya está reservado en ese horario',
+      );
+    }
+
     const space = await this.prisma.space.findUnique({
       where: {
         id: dto.spaceId,
