@@ -6,14 +6,13 @@ export default function RegisterPage({ onSwitchToLogin }: { onSwitchToLogin: () 
     fullName: "", 
     email: "", 
     password: "", 
-    roleId: 1 // Usamos el ID 1 que corresponde a 'STUDENT' en tu tabla de Roles
   });
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       // Enviamos solo los campos permitidos y limpios que espera tu DTO de NestJS
-      await axios.post(`${import.meta.env.VITE_API_URL}/users`, formData);
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, formData);
       alert("¡Registro exitoso! Ya puedes iniciar sesión.");
       onSwitchToLogin(); 
     } catch (err: any) {

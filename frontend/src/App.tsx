@@ -8,23 +8,28 @@ import SidebarMenu from "./components/SidebarMenu";
 // Páginas del Administrador
 import DashboardPage from "./pages/DashboardPage";
 import UsersPage from "./pages/UsersPage";
-import SpacesPage from "./pages/SpacesPage"; 
-import ReportsPage from "./pages/AdminReportsPage"; // Resuelve la importación correcta de administración
-import AdminReservationsPage from "./pages/AdminReservationsPage"; 
+import SpacesPage from "./pages/SpacesPage";
+import ReportsPage from "./pages/AdminReportsPage";
+import AdminReservationsPage from "./pages/AdminReservationsPage";
 
 // Páginas del Estudiante
-import ProfilePage from "./pages/ProfilePage"; 
-import ReservationsPage from "./pages/ReservationsPage"; 
-import StudentReportsPage from "./pages/StudentReportsPage"; 
+import ProfilePage from "./pages/ProfilePage";
+import ReservationsPage from "./pages/ReservationsPage";
+import StudentReportsPage from "./pages/StudentReportsPage";
 import UserHistoryPage from "./pages/UserHistoryPage";
 
 function App() {
   const [user, setUser] = useState<any>(null);
   const [page, setPage] = useState("dashboard");
-  const [loadingSession, setLoadingSession] = useState(true); 
-  const [view, setView] = useState<"welcome" | "login" | "register">("welcome");
+  const [loadingSession, setLoadingSession] =
+    useState(true);
+  const [view, setView] = useState<
+    "welcome" | "login" | "register"
+  >("welcome");
 
-  const navigateTo = (newView: "welcome" | "login" | "register") => {
+  const navigateTo = (
+    newView: "welcome" | "login" | "register",
+  ) => {
     setView(newView);
     window.history.pushState({ view: newView }, "");
   };
@@ -34,7 +39,7 @@ function App() {
       if (event.state && event.state.view) {
         setView(event.state.view);
       } else {
-        setView("welcome"); 
+        setView("welcome");
       }
     };
 
@@ -46,15 +51,27 @@ function App() {
       try {
         const parsedUser = JSON.parse(savedUser);
         setUser(parsedUser);
-        setPage(parsedUser.roleId === 1 ? "reservations" : "dashboard");
+        // Si es 1 (Estudiante) inicia en reservations, si es otro (Admin) en dashboard
+        setPage(
+          parsedUser.roleId === 2
+            ? "reservations"
+            : "dashboard",
+        );
       } catch (e) {
-        console.error("Error al parsear el usuario del almacenamiento local", e);
+        console.error(
+          "Error al parsear el usuario del almacenamiento local",
+          e,
+        );
       }
     }
 
-    setLoadingSession(false); 
+    setLoadingSession(false);
 
-    return () => window.removeEventListener("popstate", handlePopState);
+    return () =>
+      window.removeEventListener(
+        "popstate",
+        handlePopState,
+      );
   }, []);
 
   if (loadingSession) {
@@ -62,7 +79,9 @@ function App() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
         <div className="text-center space-y-2">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-xs font-semibold text-gray-500">Cargando Sistema...</p>
+          <p className="text-xs font-semibold text-gray-500">
+            Cargando Sistema...
+          </p>
         </div>
       </div>
     );
@@ -72,60 +91,89 @@ function App() {
     switch (view) {
       case "welcome":
         return (
-          <WelcomePage 
-            onNavigateToLogin={() => navigateTo("login")} 
-            onNavigateToRegister={() => navigateTo("register")}
+          <WelcomePage
+            onNavigateToLogin={() => navigateTo("login")}
+            onNavigateToRegister={() =>
+              navigateTo("register")
+            }
           />
         );
       case "register":
         return (
-          <RegisterPage 
-            onSwitchToLogin={() => navigateTo("login")} 
+          <RegisterPage
+            onSwitchToLogin={() => navigateTo("login")}
           />
         );
       case "login":
         return (
-          <LoginPage 
-            onLogin={(u: any) => { 
-              setUser(u); 
-              localStorage.setItem("user", JSON.stringify(u)); 
-              setPage(u.roleId === 1 ? "reservations" : "dashboard");
-            }} 
-            onSwitchToRegister={() => navigateTo("register")}
+          <LoginPage
+            onLogin={(data: any) => {
+              const userWithToken = {
+                ...data.user,
+                access_token: data.access_token,
+              };
+
+              setUser(userWithToken);
+
+              localStorage.setItem(
+                "user",
+                JSON.stringify(userWithToken),
+              );
+
+              setPage(
+                data.user.roleId === 2
+                  ? "reservations"
+                  : "dashboard",
+              );
+            }}
+            onSwitchToRegister={() =>
+              navigateTo("register")
+            }
           />
         );
       default:
         return (
-          <WelcomePage 
-            onNavigateToLogin={() => navigateTo("login")} 
-            onNavigateToRegister={() => navigateTo("register")}
+          <WelcomePage
+            onNavigateToLogin={() => navigateTo("login")}
+            onNavigateToRegister={() =>
+              navigateTo("register")
+            }
           />
         );
     }
   }
 
   const renderContent = () => {
+    // CORREGIDO: Si es 1, es ADMIN (según tu BD)
     if (user.roleId === 1) {
+      // Si es Admin
       switch (page) {
-        case "reservations": 
-          return <ReservationsPage />; 
-        case "history":
-          return <UserHistoryPage />;
-        case "penalties": 
-          return <StudentReportsPage />;
-        case "profile":
-          return <ProfilePage user={user} />; 
-        default: 
-          return <ReservationsPage />;
+        case "dashboard":
+          return <DashboardPage />;
+        case "users":
+          return <UsersPage />;
+        case "spaces":
+          return <SpacesPage />;
+        case "reservations":
+          return <AdminReservationsPage />;
+        case "reports":
+          return <ReportsPage />;
+        default:
+          return <DashboardPage />;
       }
     } else {
+      // Si es 2, es ESTUDIANTE
       switch (page) {
-        case "dashboard": return <DashboardPage />;
-        case "users": return <UsersPage />;
-        case "spaces": return <SpacesPage />; 
-        case "reservations": return <AdminReservationsPage />; 
-        case "reports": return <ReportsPage />; 
-        default: return <DashboardPage />;
+        case "reservations":
+          return <ReservationsPage />;
+        case "history":
+          return <UserHistoryPage />;
+        case "penalties":
+          return <StudentReportsPage />;
+        case "profile":
+          return <ProfilePage user={user} />;
+        default:
+          return <ReservationsPage />;
       }
     }
   };
@@ -133,16 +181,19 @@ function App() {
   return (
     <MainLayout
       sidebar={
-        <SidebarMenu 
-          current={page} 
-          onChange={setPage} 
-          user={user} 
-          onLogout={() => { 
-            localStorage.clear(); 
+        <SidebarMenu
+          current={page}
+          onChange={setPage}
+          user={user}
+          onLogout={() => {
+            localStorage.clear();
             setUser(null);
             setView("welcome");
-            window.history.replaceState({ view: "welcome" }, "");
-          }} 
+            window.history.replaceState(
+              { view: "welcome" },
+              "",
+            );
+          }}
         />
       }
       content={renderContent()}

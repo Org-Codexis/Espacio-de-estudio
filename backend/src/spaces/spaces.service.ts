@@ -1,90 +1,58 @@
-import { Injectable, NotFoundException, } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
-import { CreateSpaceDto } from './dto/create-space.dto'
-import { UpdateSpaceDto } from './dto/update-space.dto'
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateSpaceDto } from './dto/create-space.dto';
+import { UpdateSpaceDto } from './dto/update-space.dto';
 
 @Injectable()
 export class SpacesService {
+  constructor(private readonly prisma: PrismaService) {}
 
-    constructor(
-        private readonly prisma: PrismaService,
-    ) { }
+  async create(dto: CreateSpaceDto) {
+    return this.prisma.space.create({
+      data: dto,
+    });
+  }
 
-    async create(dto: CreateSpaceDto) {
+  async findAll() {
+    return this.prisma.space.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+    });
+  }
 
-        return this.prisma.space.create({
+  async findOne(id: number) {
+    const space = await this.prisma.space.findUnique({
+      where: { id },
 
-            data: dto,
+      include: {
+        reservations: true,
+        reports: true,
+      },
+    });
 
-        })
-
+    if (!space) {
+      throw new NotFoundException(`Space ${id} no existe`);
     }
 
-    async findAll() {
+    return space;
+  }
 
-        return this.prisma.space.findMany({
+  async update(id: number, dto: UpdateSpaceDto) {
+    await this.findOne(id);
 
-            orderBy: {
-                id: 'asc',
-            },
+    return this.prisma.space.update({
+      where: { id },
 
-        })
+      data: dto,
+    });
+  }
 
-    }
+  async remove(id: number) {
+    await this.findOne(id);
 
-    async findOne(id: number) {
-
-        const space =
-            await this.prisma.space.findUnique({
-
-                where: { id },
-
-                include: {
-                    reservations: true,
-                    reports: true,
-                },
-
-            })
-
-        if (!space) {
-
-            throw new NotFoundException(
-                `Space ${id} no existe`,
-            )
-
-        }
-
-        return space
-
-    }
-
-    async update(
-        id: number,
-        dto: UpdateSpaceDto,
-    ) {
-
-        await this.findOne(id)
-
-        return this.prisma.space.update({
-
-            where: { id },
-
-            data: dto,
-
-        })
-
-    }
-
-    async remove(id: number) {
-
-        await this.findOne(id)
-
-        await this.prisma.space.delete({
-
-            where: { id },
-
-        })
-
-    }
-
+    await this.prisma.space.delete({
+      where: { id },
+    });
+  }
 }
