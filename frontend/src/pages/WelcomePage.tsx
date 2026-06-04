@@ -40,11 +40,32 @@ export default function WelcomePage({
           );
 
           if (availableSpaces.length > 0) {
-            const randomIndex = Math.floor(
-              Math.random() * availableSpaces.length,
+            const lastSpaceId = localStorage.getItem(
+              "lastFeaturedSpace",
             );
 
-            setFeaturedSpace(availableSpaces[randomIndex]);
+            let filteredSpaces = availableSpaces;
+
+            if (lastSpaceId && availableSpaces.length > 1) {
+              filteredSpaces = availableSpaces.filter(
+                (space: any) =>
+                  String(space.id) !== lastSpaceId,
+              );
+            }
+
+            const randomIndex = Math.floor(
+              Math.random() * filteredSpaces.length,
+            );
+
+            const selectedSpace =
+              filteredSpaces[randomIndex];
+
+            localStorage.setItem(
+              "lastFeaturedSpace",
+              String(selectedSpace.id),
+            );
+
+            setFeaturedSpace(selectedSpace);
           } else {
             setFeaturedSpace(null);
           }
@@ -722,16 +743,38 @@ export default function WelcomePage({
           </div>
 
           <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1400"
-              className="rounded-[40px] shadow-2xl h-[500px] object-cover w-full"
-              alt="Main space"
-            />
+            {featuredSpace ? (
+              <>
+                <img
+                  src={
+                    featuredSpace.image ||
+                    imagenesPredeterminadas[0]
+                  }
+                  className="rounded-[40px] shadow-2xl h-[500px] object-cover w-full"
+                  alt={featuredSpace.name}
+                />
+
+                <div className="absolute bottom-8 left-8 bg-white rounded-3xl shadow-2xl p-6 w-[320px] border border-gray-100">
+                  <h2 className="text-2xl font-black text-slate-800 mb-4 truncate">
+                    {featuredSpace.name}
+                  </h2>
+
+                  <button
+                    onClick={() =>
+                      setSelectedSpace(featuredSpace)
+                    }
+                    className="w-full py-3 rounded-xl font-bold transition shadow-md bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Ver detalles
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-[40px] h-[500px] w-full bg-slate-200 animate-pulse" />
+            )}
             <div className="absolute bottom-8 left-8 bg-white rounded-3xl shadow-2xl p-6 w-[320px] border border-gray-100">
               <h2 className="text-2xl font-black text-slate-800 mb-4 truncate">
-                {featuredSpace
-                  ? featuredSpace.name
-                  : "No hay espacios disponibles"}
+                {featuredSpace?.name}
               </h2>
 
               <button
